@@ -12,6 +12,8 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 // create the Express app
 const app = express();
 
+app.use(express.json()); //express json middleware
+
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
@@ -23,10 +25,9 @@ app.get('/', async (req, res) => {
   res.json({
     message: 'Welcome to the REST API project!',
   });
-} catch (error) {
-  console.error('Unable to connect to the database:', error);
-}
-
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
 });
 
 // Add routes.

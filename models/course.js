@@ -1,12 +1,15 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class Course extends Model {
 
-  };
+const Sequelize = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  class Course extends Sequelize.Model {}
   Course.init({
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     title: {
       type: DataTypes.STRING,
     },
@@ -25,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
   Course.associate = (models) => {
     // you have to keep the foreign key config in sync across the User and Course models...
     Course.belongsTo(models.User, {
-      as: 'user', // alias
+      as: 'userPerson', // alias
       foreignKey: {
         fieldName: 'userId',
         allowNull: false,
