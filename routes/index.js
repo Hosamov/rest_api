@@ -4,47 +4,55 @@ const auth = require('basic-auth');
 const express = require('express');
 const { User, Course } = require('../models'); //import User & Course models from ../models
 const router = express.Router();
-const { authenticateUser } = require('../middleware/auth-user');
 const bcrypt = require('bcryptjs'); // for hashing user passwords before saving them
 
-// Handler function to wrap each route.
-const asyncHandler = (cb) => {
-  return async (req, res, next) => {
-    try {
-      await cb(req, res, next);
-    } catch (error) {
-      // Forward error to the global error handler
-      next(error);
-    }
-  }
-}
+//middleware:
+const { asyncHandler } = require('../middleware/async-handler');
+const { authenticateUser } = require('../middleware/auth-user');
 
-// Route that returns a list of users.
+
+/* /api/users GET route
+// Returns the list of users
+*/
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
   const user = req.currentUser; //check property currentUser on req body object
-
   res.status(200).json({
     name: user.emailAddress,
     password: user.password
   });
 }));
 
-// Route that returns a list of courses
-router.get('/courses',  asyncHandler(async (req, res) => {
-  res.json('/api/courses GET route is working');
+/* /api/courses GET route
+// Returns a list of courses including the User that owns each course
+*/
+router.get('/courses', asyncHandler(async (req, res) => {
+  let courses;
+  try {
+    //res.json('/api/courses GET route is working');
+    courses = await Course.findAll();
+    console.log(courses);
+    res.status(200).json({courses})
+  } catch (error) {
+    res.status(400).json( {error} );
+  }
 }));
 
-// Route that returns a specific course
+/* /api/courses/:id GET route
+// Returns a corresponding course along with the User that owns that course
+*/
 router.get('/courses/:id',  asyncHandler(async (req, res) => {
   res.json('/api/courses/:id GET route is working');
 }));
 
-
-// Route that creates a new user.
+/* /api/users POST route
+// Creates a new user
+// redirects to '/'
+*/
 router.post('/users', async (req, res) => {
   try {
     await User.create(req.body);
     res.status(201).json({ "message": "Account successfully created!" });
+    res.redirect('/');
   } catch (error) {
     console.log(error);
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
@@ -56,26 +64,25 @@ router.post('/users', async (req, res) => {
   }
 });
 
-// Route that creates a new user.
+/* /api/courses POST route
+// Creates a new course
+// Sets location header to URI for newly created course
+*/
 router.post('/courses', asyncHandler(async (req, res) => {
     res.json('/api/courses POST route is working!');
-  // try {
-  //   await User.create(req.body);
-  //   res.status(201).json({ "message": "Account successfully created!" });
-  // } catch (error) {
-  //   if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-  //     const errors = error.errors.map(err => err.message);
-  //     res.status(400).json({ errors });
-  //   } else {
-  //     throw error;
-  //   }
-  // }
+
 }));
 
+/* /api/courses/:id PUT route
+// Updates corresponding course along with the User that owns that course
+*/
 router.put('/courses/:id', asyncHandler(async (req, res) => {
   res.json('/api/courses/:id PUT route is working!');
 }))
 
+/* /api/courses/:id DELETE route
+// Deletes the corresponding course
+*/
 router.delete('/courses/:id', asyncHandler(async (req, res) => {
   res.json('/api/courses/:id DELETE route is working!');
 }))
