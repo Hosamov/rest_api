@@ -60,8 +60,8 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: {
           msg: 'Please provide a password'
         },
-        len: {
-          args: [8, 20],
+        len: { //set length constraints for the password
+          args: [8, 20], //betwen 8 and 20 chars
           msg: 'The password should be between 8 and 20 characters in length'
         }
       }
@@ -75,7 +75,7 @@ module.exports = (sequelize, DataTypes) => {
           this.setDataValue('password', hashedPassword); //set the hashed password in password column
         }
       },
-      validate: {
+      validate: { //check if it matches unconfirmedPassword
         notNull: {
           msg: 'Both passwords must match'
         }
