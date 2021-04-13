@@ -100,7 +100,7 @@ router.put('/courses/:id', asyncHandler(async (req, res) => {
   if(course) {
     //update the course table with data received from req.body
     await course.update(req.body);
-    res.status(204).end();
+    res.status(204).end(); //return 204 status code and no content
   } else {
     res.status(404).json({message: "Course not found"});
   }
@@ -110,8 +110,14 @@ router.put('/courses/:id', asyncHandler(async (req, res) => {
 // Deletes the corresponding course
 */
 router.delete('/courses/:id', asyncHandler(async (req, res) => {
-  res.json('/api/courses/:id DELETE route is working!');
-
+  let course = await Course.findByPk(req.params.id);
+  if(course) {
+    //delete the selected course
+    await course.destroy();
+    res.status(204).end(); //return 204 status code and no content
+  } else {
+    res.status(404).json({message: "Course not found"});
+  }
 }))
 
 module.exports = router;
