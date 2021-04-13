@@ -60,8 +60,9 @@ router.get('/courses/:id',  asyncHandler(async (req, res, next) => {
 router.post('/users', asyncHandler(async (req, res) => {
   try {
     await User.create(req.body);
-    res.status(201).json({ "message": "Account successfully created!" });
-    res.redirect('/');
+
+    //return 201 status code, set location header to '/' route
+    res.status(201).location('/').end();
   } catch (error) {
     console.log(error);
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
@@ -78,13 +79,13 @@ router.post('/users', asyncHandler(async (req, res) => {
 // Sets location header to URI for newly created course
 */
 router.post('/courses', asyncHandler(async (req, res) => {
-  //res.json('/api/courses POST route is working!');
   let course;
   try {
     course = await Course.create(req.body); //create a new course using req.body object
     const courseId = course.id;
 
-    res.status(201).location('/courses/' + courseId).json("course created");
+    //return 201 status code, set location header to newly created course
+    res.status(201).location('/courses/' + courseId).end();
   } catch (error) {
     console.log(error);
   }
@@ -94,7 +95,15 @@ router.post('/courses', asyncHandler(async (req, res) => {
 // Updates corresponding course along with the User that owns that course
 */
 router.put('/courses/:id', asyncHandler(async (req, res) => {
-  res.json('/api/courses/:id PUT route is working!');
+  //res.json('/api/courses/:id PUT route is working!');
+  let course = await Course.findByPk(req.params.id);
+  if(course) {
+    //update the course table with data received from req.body
+    await course.update(req.body);
+    res.status(204).end();
+  } else {
+    res.status(404).json({message: "Course not found"});
+  }
 }))
 
 /* /api/courses/:id DELETE route
@@ -102,6 +111,7 @@ router.put('/courses/:id', asyncHandler(async (req, res) => {
 */
 router.delete('/courses/:id', asyncHandler(async (req, res) => {
   res.json('/api/courses/:id DELETE route is working!');
+
 }))
 
 module.exports = router;
