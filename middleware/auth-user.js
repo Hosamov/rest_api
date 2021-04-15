@@ -1,20 +1,22 @@
 'use strict';
 
+// Middleware to authenticate the request using Basic Authentication.
+
 const auth = require('basic-auth');
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
 
-// Middleware to authenticate the request using Basic Authentication.
+//middleware
 exports.authenticateUser = async (req, res, next) => {
   let message; // message to display
   // Parse the user's credentials from the Authorization header.
   const credentials = auth(req);
 
   if (credentials) {
-    const user = await User.findOne({ where: {emailAddress: credentials.name } });
+    const user = await User.findOne({ where: { emailAddress: credentials.name } }); //email will act as username
     if (user) {
        const authenticated = bcrypt
-         .compareSync(credentials.pass, user.password); // bcrypt method to compare passwords
+         .compareSync(credentials.pass, user.password); // bcrypt method to compare passwords (input credential, stored password)
       if (authenticated) { // if the passwords match
         console.log(`Authentication successful for username: ${user.emailAddress} `);
         // add property named currentUser to req obj and set to authenticated user

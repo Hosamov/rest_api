@@ -12,9 +12,27 @@ module.exports = (sequelize, DataTypes) => {
     },
     title: {
       type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: 'A title is required'
+        },
+        notEmpty: {
+          msg: 'Please provide a title'
+        }
+      }
     },
     description: {
       type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: 'A course description is required'
+        },
+        notEmpty: {
+          msg: 'Please provide a description'
+        }
+      }
     },
     estimatedTime: {
       type: DataTypes.STRING,
@@ -28,7 +46,6 @@ module.exports = (sequelize, DataTypes) => {
   Course.associate = (models) => {
     // you have to keep the foreign key config in sync across the User and Course models...
     Course.belongsTo(models.User, {
-      as: 'userPerson', // alias
       foreignKey: {
         fieldName: 'userId',
         allowNull: false,

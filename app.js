@@ -3,7 +3,10 @@
 // load modules
 const express = require('express');
 const morgan = require('morgan');
-const routes = require('./routes');
+const routeIndex = require('./routes/index');
+const routeCourses = require('./routes/courses');
+const routeUsers = require('./routes/users');
+
 const sequelize = require('./models').sequelize;
 
 // variable to enable global error logging
@@ -22,16 +25,15 @@ app.get('/', async (req, res) => {
   try {
   await sequelize.authenticate();
   console.log('Connection has been established successfully.');
-  res.json({
-    message: 'Welcome to the REST API project!',
-  });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
 });
 
 // Add routes.
-app.use('/api', routes);
+app.use('/api', routeIndex);
+app.use('/api', routeCourses);
+app.use('/api', routeUsers);
 
 // send 404 if no other route matched
 app.use((req, res) => {
