@@ -3,7 +3,7 @@
 // load modules
 const express = require('express');
 const morgan = require('morgan');
-const routeIndex = require('./routes/index');
+//const routeIndex = require('./routes/index');
 const routeCourses = require('./routes/courses');
 const routeUsers = require('./routes/users');
 
@@ -31,7 +31,7 @@ app.get('/', async (req, res) => {
 });
 
 // Add routes.
-app.use('/api', routeIndex);
+//app.use('/api', routeIndex);
 app.use('/api', routeCourses);
 app.use('/api', routeUsers);
 

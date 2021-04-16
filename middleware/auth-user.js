@@ -3,7 +3,7 @@
 // Middleware to authenticate the request using Basic Authentication.
 
 const auth = require('basic-auth');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { User } = require('../models');
 
 //middleware

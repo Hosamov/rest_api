@@ -4,9 +4,6 @@ const express = require('express');
 const router = express.Router();
 const auth = require('basic-auth');
 const { User, Course } = require('../models'); //import User & Course models from ../models
-// const Course = require('../models').Course;
-// const User = require('../models').User;
-//const bcrypt = require('bcryptjs'); // for hashing user passwords before saving them
 
 //middleware:
 const { asyncHandler } = require('../middleware/async-handler');
@@ -17,65 +14,66 @@ const { authenticateUser } = require('../middleware/auth-user');
 */
 router.get('/courses', asyncHandler(async (req, res) => {
   let courses;
-  try {;
-    courses = await Course.findAll({
-      attributes: [
-        "id",
-        "title",
-        "description",
-        "estimatedTime",
-        "materialsNeeded"
-        // no createdAt & updatedAt
-      ],
-      include: [{
-        model: User,
-          attributes: [
-            "id",
-            "firstName",
-            "lastName",
-            "emailAddress"
-          ]
+  courses = await Course.findAll({
+    attributes: [
+      "id",
+      "title",
+      "description",
+      "estimatedTime",
+      "materialsNeeded"
+      // no createdAt & updatedAt
+    ],
+    include: [{
+      model: User,
+        attributes: [
+          "id",
+          "firstName",
+          "lastName",
+          "emailAddress"
+        ]
       }
     ]
-    });
-    res.status(200).json({courses})
-  } catch (error) {
-    res.status(400).json( { error } );
+  });
+
+  if (courses) {
+    res.status(200).json( { courses } ); //return 200 status & course data
+  } else {
+    res.status(400).json( { message: "Courses not found" } );
   }
+
 }));
 
 /* /api/courses/:id GET route
 // Returns a corresponding course along with the User that owns that course
 */
 router.get('/courses/:id',  asyncHandler(async (req, res, next) => {
-  try {
-    const course = await Course.findAll({
-      where: { id: req.params.id },
-      attributes: [
-        "id",
-        "title",
-        "description",
-        "estimatedTime",
-        "materialsNeeded"
-        // no createdAt & updatedAt
-      ],
-      include: {
-        model: User,
-          attributes: [
-            "id",
-            "firstName",
-            "lastName",
-            "emailAddress"
-          ]
-      },
-    });
+  const course = await Course.findAll({
+    where: { id: req.params.id },
+    attributes: [
+      "id",
+      "title",
+      "description",
+      "estimatedTime",
+      "materialsNeeded"
+      // no createdAt & updatedAt
+    ],
+    include: {
+      model: User,
+        attributes: [
+          "id",
+          "firstName",
+          "lastName",
+          "emailAddress"
+        ]
+    },
+  });
 
-    if(course) {
-      res.status(200).json({ course });
-    }
-  } catch (error) {
-    res.status(404).json( { error: "Course Not Found" } );
+  if(course) {
+    res.status(200).json( { course } ); //return 200 status & course data
+  } else {
+    res.status(400).json( { message: "Course not found" } );
   }
+
 }));
 
 /* /api/courses POST route
@@ -116,8 +114,10 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
         res.status(204).end(); //return 204 status code and no content
       } else {
         //return 403 status code ( not authorized )
-        res.status(403).json( { message: "Insufficient permissions; you cannot edit this course" } );
+        res.status(403).json( { message: "Insufficient permissions" } );
       }
+    } else {
+      res.status(400).json( { message: "Course not found" } );
     }
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
@@ -134,18 +134,22 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
 */
 router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
   const user = req.currentUser.id;
-  let course = await Course.findByPk(req.params.id);
-  if(course) {
-    //delete the selected course
-    if(course.userId === user) {
-      await course.destroy();
-      res.status(204).end(); //return 204 status code and no content
-    }  else {
-        //return 403 status code ( not authorized )
-      res.status(403).json({message: "Insufficient permissions; you cannot delete this course."});
+  try {
+    let course = await Course.findByPk(req.params.id);
+    if(course) {
+      //delete the selected course
+      if(course.userId === user) {
+        await course.destroy();
+        res.status(204).end(); //return 204 status code and no content
+      } else {
+          //return 403 status code ( not authorized )
+        res.status(403).json({message: "Insufficient permissions"});
+      }
+    } else {
+      next();
     }
-  } else {
-    res.status(404).json({message: "Course not found"});
+  } catch (error) {
+      res.status(400).json( { message: "Course not found" } );
   }
 }))
 
