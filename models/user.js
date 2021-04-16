@@ -1,6 +1,6 @@
 'use strict';
 
-const Sequelize = require('sequelize');
+const {Sequelize} = require('sequelize');
 const bcrypt = require('bcryptjs'); //for encrypting the password
 
 module.exports = (sequelize, DataTypes) => {
@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'An email address is required'
         },
         notEmpty: {
-          msg: 'Please provide an email address'
+          msg: 'Email field cannot be empty'
         },
         isEmail: { //check if it's actually an email address.
           msg: 'Please provide a valid email address'
@@ -69,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'Please provide a password'
         }
       }
-    }
+    },
   }, { sequelize });
 
   // create a PersonId:
