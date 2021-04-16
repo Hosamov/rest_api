@@ -31,7 +31,6 @@ app.get('/', async (req, res) => {
 });
 
 // Add routes.
-//app.use('/api', routeIndex);
 app.use('/api', routeCourses);
 app.use('/api', routeUsers);
 
